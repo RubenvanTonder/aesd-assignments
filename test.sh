@@ -12,6 +12,10 @@ if [ -f ./assignment-autotest/docker/options ]; then
 fi
 ./test-unit.sh
 
+if [ -f "CMakeLists.txt" ]; then
+    mkdir -p build && cd build && cmake .. && make && cd ..
+fi
+
 # If there's a configuration for the assignment number, use this to look for
 # additional tests
 if [ -f conf/assignment.txt ]; then
