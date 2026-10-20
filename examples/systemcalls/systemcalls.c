@@ -66,21 +66,39 @@ bool do_exec(int count, ...)
     if (pid>0)
     {
 	    printf("I am the parent of pid=%d!\n",pid);
-    }
-    else if (!pid)
-    {
-	    printf("I am the baby!\n");
-	    int ret = execv(command[0], command);
-	    if (ret == -1)
+	    int status;
+	    if (waitpid(pid, &status, 0) == -1)
 	    {
-		perror("execv");
+		    perror("waitpid");
+		    return false;
 	    }
 
+	    // Check how the child terminated
+        if (status == 0)
+        {
+            int exit_status = WEXITSTATUS(status);
+            // Return true ONLY if the command exited with 0 (success)
+            return (exit_status == 0);
+        }
+
+	return false;
+	
     }
-    		
+    else if (pid == 0)
+    {
+	printf("I am the baby!\n");
+	int ret = execv(command[0], command);
+	if (ret !=0)
+	{
+		perror("execv");
+		exit(EXIT_FAILURE);	
+	}
+
+    }
     else if (pid==-1)
     {
 	    perror("fork");
+	    return false;
     }
 
     va_end(args);
@@ -116,6 +134,34 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+    int kidpid;
+    int fd = open(outputfile, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+    if (fd < 0 ) { perror("open"); return false;}
+
+    switch (kidpid = fork())
+    {
+	case -1: perror("fork"); return false;
+
+	case 0:
+		if (dup2(fd, STDOUT_FILENO) < 0) { perror("dup2"); close(fd); return false;}
+		close(fd);
+		execv(command[0], command);
+		perror("execvp");
+		return false;
+	default:
+		close(fd);
+		int status;
+		if (waitpid(kidpid, &status, 0) == -1 )
+		{
+			perror("waitpid");
+			return false;
+		}
+		if (status == 0)
+		{
+			return true;
+		}
+		return false;
+    }
 
     va_end(args);
 

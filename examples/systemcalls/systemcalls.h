@@ -6,6 +6,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 bool do_system(const char *command);
 
