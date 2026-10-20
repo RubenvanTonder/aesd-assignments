@@ -9,13 +9,16 @@
 */
 bool do_system(const char *cmd)
 {
+    int return_code = system(cmd);
 
-/*
- * TODO  add your code here
- *  Call the system() function with the command set in the cmd
- *   and return a boolean true if the system() call completed with success
- *   or false() if it returned a failure
-*/
+    if (return_code != 0)
+    {
+	perror("System() failed to execute");
+    }
+    else
+    {
+	printf("Command executed successfully with return code: %d\n", return_code);
+    }
 
     return true;
 }
@@ -58,6 +61,27 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+    int pid = fork();
+
+    if (pid>0)
+    {
+	    printf("I am the parent of pid=%d!\n",pid);
+    }
+    else if (!pid)
+    {
+	    printf("I am the baby!\n");
+	    int ret = execv(command[0], command);
+	    if (ret == -1)
+	    {
+		perror("execv");
+	    }
+
+    }
+    		
+    else if (pid==-1)
+    {
+	    perror("fork");
+    }
 
     va_end(args);
 
