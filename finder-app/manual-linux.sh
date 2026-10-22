@@ -35,6 +35,9 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     git checkout ${KERNEL_VERSION}
 
     # TODO: Add your kernel build steps here
+    make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} mrproper
+    make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
+    make -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} all
 fi
 
 echo "Adding the Image in outdir"
@@ -47,7 +50,10 @@ then
     sudo rm  -rf ${OUTDIR}/rootfs
 fi
 
-# TODO: Create necessary base directories
+# TODO: Create necessary base directoriesi
+mkdir -p ${OUTDIR}/rootfs
+cd ${OUTDIR}/rootfs
+mkdir -p bin dev etc home lib lib64 proc sys tmp user/bin usr/lib usr/sbin var/log
 
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
@@ -56,17 +62,27 @@ git clone git://busybox.net/busybox.git
     cd busybox
     git checkout ${BUSYBOX_VERSION}
     # TODO:  Configure busybox
+    make distclean
+    make defconfig
 else
     cd busybox
 fi
 
 # TODO: Make and install busybox
+make ARCH=${ARCH}  CROSS_COMPILE=${CROSS_COMPILE} defconfig
+make -j${nproc} ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
+make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} CONFIG_PREFIX=${OUTDIR}/rootfs install
 
 echo "Library dependencies"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs
+SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
+cp -L ${SYSROOT}/lib/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib/
+cp -L ${SYSROOT}/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
+cp -L ${SYSROOT}/lib64/libresolc.so.2 ${OUTDIR}/rootfs/lib64
+cp -L ${SYSROOT}/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64
 
 # TODO: Make device nodes
 
