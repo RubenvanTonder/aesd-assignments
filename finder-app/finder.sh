@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Check if both arguuments are provided
 
