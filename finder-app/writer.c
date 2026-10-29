@@ -29,7 +29,7 @@ int main(int argc, char*argv[])
 	// O_CREAT: create the file if it does not exit
 	// O_TRUNC: overwrite if the file alread exists
 	// 0644: Permissions
-	int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | 0644);
+	int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 	{
 		syslog(LOG_ERR, "Error opening file %s for writing", filename);
