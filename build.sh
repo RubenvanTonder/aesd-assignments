@@ -4,7 +4,7 @@
 
 source shared.sh
 
-EXTERNAL_REL_BUILDROOT=../base_external
+EXTERNAL_REL_BUILDROOT="$(pwd)/base_external"
 git submodule init
 git submodule sync
 git submodule update
