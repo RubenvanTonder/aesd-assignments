@@ -9,6 +9,8 @@ jobs:
     full-test:
         container: cuaesd/aesd-autotest:24-assignment5-buildroot
         runs-on: self-hosted
+        env:
+          FORCE_UNSAFE_CONFIGURE: 1
         timeout-minutes: 120
         steps:
           - uses: actions/checkout@v2
