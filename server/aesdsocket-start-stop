@@ -1,16 +1,27 @@
-#!/bin/sh
+#! /bin/sh
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+NAME=aesdsocket
+DAEMON=/usr/bin/aesdsocket
+DAEMON_OPTS="-d"
+
 case "$1" in
     start)
-        echo "Starting aesdsocket"
-        start-stop-daemon --start --background --exec /usr/bin/aesdsocket -- -d
+        echo "Starting $NAME"
+        start-stop-daemon -S -n $NAME -a $DAEMON -- $DAEMON_OPTS
         ;;
     stop)
-        echo "Stopping aesdsocket"
-        start-stop-daemon --stop --name aesdsocket
+        echo "Stopping $NAME"
+        start-stop-daemon -K -n $NAME
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
         ;;
     *)
-        echo "Usage: $0 {start|stop}"
+        echo "Usage: $0 {start|stop|restart}"
         exit 1
         ;;
 esac
+
 exit 0
